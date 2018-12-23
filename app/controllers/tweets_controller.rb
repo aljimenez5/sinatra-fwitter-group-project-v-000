@@ -11,31 +11,50 @@ class TweetsController < ApplicationController
   end
 
   get '/tweets/new' do
-    erb :'/tweets/new'
+    if Helpers.logged_in?(session)
+      erb :'/tweets/new'
+    else
+      redirect :login
+    end
   end
 
   post '/tweets' do
-    user = User.find_by(id: session[:user_id])
-    tweet = Tweet.create(content: params[:content])
-    user.tweets << tweet
-
-    redirect to '/tweets/#{tweet.id}'
+    if !params[:content].empty?
+      user = User.find_by(id: session[:user_id])
+      tweet = Tweet.create(content: params[:content])
+      user.tweets << tweet
+      redirect to "/tweets/#{tweet.id}"
+    else
+      redirect to "/tweets/new"
+    end
   end
 
   get '/tweets/:id' do
-    @tweet = Tweet.find_by(id: params[:id])
-    erb :'/tweets/show_tweet'
+    if Helpers.logged_in?(session)
+      @tweet = Tweet.find_by(id: params[:id])
+      erb :'/tweets/show_tweet'
+    else
+      redirect to "/login"
+    end
   end
 
   get '/tweets/:id/edit' do
-    @tweet = Tweet.find_by(id: params[:id])
-    erb :'/tweets/edit_tweet'
+    if Helpers.logged_in?(session) && params[:id] == session[:user_id]
+      @tweet = Tweet.find_by(id: params[:id])
+      erb :'/tweets/edit_tweet'
+    else
+      redirect to "/login"
+    end
   end
 
   patch '/tweets/:id' do
     @tweet = Tweet.find_by(id: params[:id])
-    @tweet.update(content: params[:content])
-    redirect to '/tweets'
+    if Helpers.logged_in?(session) && @tweet.user.id == session[:user_id]
+      @tweet.update(content: params[:content])
+      redirect to '/tweets'
+    else
+      redirect to "/tweets/#{@tweet.id}/edit"
+    end
   end
 
   delete '/tweets/delete/:id' do
