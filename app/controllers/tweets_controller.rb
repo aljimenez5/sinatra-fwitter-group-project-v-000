@@ -1,50 +1,32 @@
 class TweetsController < ApplicationController
 
   get '/tweets' do
-    if Helpers.logged_in?(session)
-      @tweets = Tweet.all
-      @user = Helpers.current_user(session)
-      erb :'/tweets/tweets'
-    else
-      redirect "/login"
-    end
+
+    @tweets = Tweet.all
+
+    erb :'/tweets/tweets'
   end
 
   get '/tweets/new' do
-    if Helpers.logged_in?(session)
-      erb :'/tweets/new'
-    else
-      redirect :login
-    end
+    erb :'/tweets/new'
   end
 
   post '/tweets' do
-    if !params[:content].empty?
-      user = User.find_by(id: session[:user_id])
-      tweet = Tweet.create(content: params[:content])
-      user.tweets << tweet
-      redirect to "/tweets/#{tweet.id}"
-    else
-      redirect to "/tweets/new"
-    end
+    user = User.find_by(id: session[:user_id])
+    tweet = Tweet.create(content: params[:content])
+    user.tweets << tweet
+
+    redirect to '/tweets/#{tweet.id}'
   end
 
   get '/tweets/:id' do
-    if Helpers.logged_in?(session)
-      @tweet = Tweet.find_by(id: params[:id])
-      erb :'/tweets/show_tweet'
-    else
-      redirect to "/login"
-    end
+    @tweet = Tweet.find_by(id: params[:id])
+    erb :'/tweets/show_tweet'
   end
 
   get '/tweets/:id/edit' do
-    if Helpers.logged_in?(session) && params[:id] == session[:user_id]
-      @tweet = Tweet.find_by(id: params[:id])
-      erb :'/tweets/edit_tweet'
-    else
-      redirect to "/tweets"
-    end
+    @tweet = Tweet.find_by(id: params[:id])
+    erb :'/tweets/edit_tweet'
   end
 
   patch '/tweets/:id' do
