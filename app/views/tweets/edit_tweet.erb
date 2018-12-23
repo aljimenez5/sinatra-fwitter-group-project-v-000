@@ -1,7 +1,8 @@
 <h1>Edit Tweet</h1>
 
 <form action="/tweets/<%= @tweet.id %>" method="POST">
-  <input type="text" name="content" value="<%= @tweet.content %>"></input>
+  <input type="hidden" id="hidden" name="_method" value="patch"></input>
+  <input type="textarea" name="content" id="content" value="<%= @tweet.content %>"></input>
   <input type="submit" value="submit" id="submit"></input>
 
 </form>
